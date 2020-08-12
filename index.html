@@ -1,0 +1,98 @@
+<html>
+    <head>
+         <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        .menuButton{
+            width:18%;
+            font-family:OCR A Extended V3;
+            font-size:30;
+        }
+        .contentDiv{
+            padding-left: 360px; padding: 250px;
+            font-family:OCR A Extended V3;
+            font-size:20;
+        }
+    </style>
+    </head>
+    <body style = "background-image: url(background.jpg)">
+        <div class = "contentDiv"  id = "buttonsWindow" style = "<display:block;">
+         <center>
+            <h2 style = 'font-family:OCR A Extended V3;font-size:40;'>Welcome to the multisnake</h2>
+            <button class = "menuButton" onclick = "router(1);">
+                login
+            </button><p></p>
+            <button class = "menuButton" onclick = "router(2);"> 
+                register
+            </button>
+            <p></p>
+            <button class = "menuButton" onclick = "router(3);">
+                play without registration
+            </button>
+        </center>
+        </div>
+        <div class = "contentDiv" id = "formWindow" style = "display: none;">
+            <center>
+                <p id = "text"></p>
+                <span id = "loginSpan" style = "display:none;"> <input type = "text" id = "login" placeholder = "Enter your login" > Enter your login </span><p></p>     
+                <span id = "passSpan" style = "display:none;">  <input type = "password" id = "pass" placeholder = "Enter your password" > Enter your password </span><p></p>
+                <span id = "confSpan" style = "display:none;">  <input type = "password" id = "passConfirm" placeholder = "Confirm your password" > Confirm your password</span> <p></p>
+
+                <button class = "menuButton" id = "enter" onClick = "enter()">Enter</button><p></p>
+                <button class = "menuButton" id = "close" onclick = "close()">Close</button>
+
+            </center>
+        </div>
+        <a href="http://www.onlinewebfonts.com">oNline Web Fonts</a>
+    </body>
+       
+    <script type = "text/javascript">
+        let mode = 0;
+        function router(cmd){
+            document.getElementById("buttonsWindow").style.display = "none";
+            document.getElementById("formWindow").style.display = "block";
+            document.getElementById("loginSpan").style.display = "block";
+            document.getElementById("enter").style.display = "block";
+            document.getElementById("close").style.display = "block";
+
+            if(cmd==1)showLoginReg();
+            else
+                if(cmd==2)showReg();
+            else
+                if(cmd==3)showLoginOnly();
+        }
+        
+        function showLoginReg(){
+            mode = 1;
+            document.getElementById("passSpan").style.display = "block";
+
+            
+        }
+        
+        function showReg(){
+             mode = 2;
+             document.getElementById("passSpan").style.display = "block";
+             document.getElementById("confSpan").style.display = "block";
+        }
+        
+        function showLoginOnly(){
+            mode = 3;
+        }
+        
+        function close(){
+            mode = 0;
+            document.getElementById("buttonsWindow").style.display = "block";
+            document.getElementById("formWindow").style.display = "none";
+            document.getElementById("passSpan").style.display = "none";
+            document.getElementById("loginSpan").style.display = "none";
+            document.getElementById("confSpan").style.display = "none";
+            document.getElementById("login").style.display = "none";
+            document.getElementById("enter").style.display = "none";
+            document.getElementById("close").style.display = "none";
+        }
+        
+        function enter(){
+            
+        }
+    </script>
+</html>
