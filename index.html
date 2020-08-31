@@ -35,7 +35,7 @@
         <div class = "contentDiv" id = "formWindow" style = "display: none;">
             <center>
                 <p id = "text"></p>
-                <span id = "loginSpan" style = "display:none;"> <input type = "password" id = "login" placeholder = "Enter your login" > Enter your login </span><p></p>     
+                <span id = "loginSpan" style = "display:none;"> <input type = "text" id = "login" placeholder = "Enter your login" > Enter your login </span><p></p>     
                 <span id = "passSpan" style = "display:none;">  <input type = "password" id = "pass" placeholder = "Enter your password" > Enter your password </span><p></p>
                 <span id = "confSpan" style = "display:none;">  <input type = "password" id = "passConfirm" placeholder = "Confirm your password" > Confirm your password</span> <p></p>
 
@@ -47,7 +47,8 @@
   
         <a href="http://www.onlinewebfonts.com">oNline Web Fonts</a>
     </body>
-       
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+   
     <script type = "text/javascript">
         let mode = 0;
         function router(cmd){
@@ -82,10 +83,10 @@
         }
         
         function exit(){
+			mode = 0;
             document.getElementById("login").value = "";
             document.getElementById("pass").value = "";
             document.getElementById("passConfirm").value = "";
-            mode = 0;
             document.getElementById("buttonsWindow").style.display = "block";
             document.getElementById("formWindow").style.display = "none";
             document.getElementById("passSpan").style.display = "none";
@@ -96,7 +97,35 @@
         }
         
         function enter(){
-            alert(1);
-        }
+        	
+            let login = $("#login").val().trimEnd();
+		    $("#login").val("");
+		    let pass = $("#pass").val();
+		    $("#pass").val("");
+		    let confPass = $("#passConfirm").val();
+		    $("#confPass").val("");
+		    if(pass==undefined)pass = "";
+		    if(confPass==undefined)confPass = "";
+
+		    if(login==""){alert("Wrong login");}
+		    else
+		    if(mode==1){
+		    	alert(1);
+		    }
+		    else
+		    	if(mode==2){
+		    		if( mode !=3 && pass!=confPass || pass.lenght<8 || login.lenght==0 ){alert("Password lenght must be more or equal 8 or you entered two different passwords");}
+		    	}
+		    else{
+		    	const Http = new XMLHttpRequest();
+				const url='127.0.0.1:9091';
+				Http.open("POST", url);
+				Http.send();
+				Http.onreadystatechange = (e) => {
+  					console.log(Http.responseText);
+				}
+		    }
+		    
+	    }
     </script>
 </html>
