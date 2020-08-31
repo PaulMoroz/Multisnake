@@ -1,4 +1,4 @@
-import socketio
+import socket
 import sqlite3
 import json
 import os
@@ -8,8 +8,7 @@ import string
 
 def get_random_string(length):
     letters = string.ascii_lowercase
-    result_str = ''.join(random.choice(letters) for i in range(length))
-    print("Random string of length", length, "is:", result_str)
+    return ''.join(random.choice(letters) for i in range(length))
 
 if not os.path.isfile("users.db"):
     file = open("users.db","w+")
@@ -19,7 +18,7 @@ conn = sqlite3.connect("users.db")
 cursor = conn.cursor()
 
 conn.execute('''CREATE TABLE IF NOT EXISTS users
-             (id int,login text, pass text, win int, lose int, longest int,temp bool)''')
+             (id int,login varchar(256), pass varchar(256), win int, lose int, longest int,temp int)''')
 
 conn.commit()
 
@@ -31,24 +30,25 @@ print("DATABASE INITED")
 
 def register(player):
     cursor.execute("select COUNT(id) from users where login = '"+player['login']+"'")
-    nums = cursor.fetchone[0]
+    nums = cursor.fetchone()[0]
     if nums==0:
         cursor.execute("select COUNT(id) from users")
         pid = cursor.fetchone()[0]+1
         newp = [pid,player['login'],player['pass'] if player['temp'] == False else get_random_string(16) ,0,0,3,player['temp']]
-        cursor.execute(''' INSERT INTO users VALUES (?,?,?,?,?,?) ''',pid)
+        print(newp)
+        cursor.execute(''' INSERT INTO users VALUES (?,?,?,?,?,?,?) ''',newp)
         conn.commit()
-        return json.dumps({"opStatus":True,"id":pid,'login':player['login'],'pass':player['pass']})
+        return json.dumps({"opStatus":True,"id":pid,"login":player['login']})
     else:
         return json.dumps({"opStatus":False})
 
 def checkIfExists(player):
     cursor.execute("select COUNT(id) from users where login = '"+player['login']+"' and pass = '"+player['pass']+"'")
-    if cursor.fetchone[0]==0:
+    if cursor.fetchone()[0]==0:
         return json.dumps({"opStatus":False})
     else:
-        return json.dumps({"opStatus":True})
-    
+        return json.dumps({"opStatus":True,"id":pid,"login":player['login']})
+
 def exit(player):
     cursor.execute("delete from users where login = '"+player['login']+"' and pass = '"+player['pass']+"' and id = '"+player['id']+"'")
     return json.dumps({"opStatus":True})
@@ -65,13 +65,19 @@ while True:
     sock.listen(1)
     connection, address = sock.accept()
     buf = connection.recv(1024)
+    try:
     if len(buf) > 0:
         print(str(buf).split("\\r\\n"))
-        resp = json.loads(str(buf).split("\\r\\n")[-1])
-        print(resp)
+        print(str(buf).split("\\r\\n")[-1][:-1])
+        resp = json.loads(str(buf).split("\\r\\n")[-1][:-1])
+        connection.send(("HTTP/1.1 200 OK\n"
+         +"Access-Control-Allow-Origin: *\n"
+         +"Content-Type: json\n"
+         +"\n"+router(resp)).encode('utf-8'))
+    except:
+        print(buf)    
 
 
 connection.close()
 
 conn.close()
-

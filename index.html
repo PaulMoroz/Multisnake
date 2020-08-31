@@ -110,22 +110,49 @@
 		    if(login==""){alert("Wrong login");}
 		    else
 		    if(mode==1){
-		    	alert(1);
-		    }
+		    	$.ajax({
+					url: 'http://127.0.0.1:8080/',
+					type: 'POST',
+					dataType: 'json',
+					data:JSON.stringify({"cmd":"check","player":{"login":login,"pass":pass}})
+					})
+					.done(function(data) {
+						redirector(data);
+					})
+				}
 		    else
 		    	if(mode==2){
 		    		if( mode !=3 && pass!=confPass || pass.lenght<8 || login.lenght==0 ){alert("Password lenght must be more or equal 8 or you entered two different passwords");}
+		    		else{
+		    			$.ajax({
+						url: 'http://127.0.0.1:8080/',
+						type: 'POST',
+						dataType: 'json',
+						data:JSON.stringify({"cmd":"register","player":{"login":login,"pass":pass,"temp":0}})
+						})
+						.done(function(data) {
+							redirector(data);
+						})
+				    		}
 		    	}
 		    else{
-		    	const Http = new XMLHttpRequest();
-				const url='127.0.0.1:9091';
-				Http.open("POST", url);
-				Http.send();
-				Http.onreadystatechange = (e) => {
-  					console.log(Http.responseText);
-				}
+				$.ajax({
+					url: 'http://127.0.0.1:8080/',
+					type: 'POST',
+					dataType: 'json',
+					data:JSON.stringify({"cmd":"register","player":{"login":login,"pass":"","temp":1}})
+				})
+				.done(function(data) {
+					redirector(data);
+				})
+				
 		    }
-		    
+	    }
+	    function redirector(data){
+	    	let ans = JSON.parse(data);
+	    	if(ans["opStatus"])window.location.replace("gamemenu.html?id='"+ans["pid"]+"'login='"+ans["login"]+"'");
+	    	else
+	    		alert("Some get wrong");
 	    }
     </script>
 </html>
