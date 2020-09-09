@@ -11,26 +11,79 @@
             font-size:30;
         }
     </style>
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <body>
-        <header align = center style = "width:100%;height:10%;"><h3 style = "font-family:OCR A Extended V3;font-size:40px;">Multisnaake</h3></header>
-        <button class = "menuButton" style = "font-size:30; width:20%;">
-            Enter the random game
-        </button><p></p>
-        <button class = "menuButton" style = "font-size:30; width:20%;">
-            Create game
-        </button><p></p>
-        <button class = "menuButton" style = "font-size:30; width:20%;">
-            Find game
-        </button><p></p>
-        <button class = "menuButton" style = "font-size:30; width:20%;">
-            View statistics
-        </button><p></p>
-        <button class = "menuButton" style = "font-size:30; width:20%;">
-            Exit
-        </button>
+        <header align = center style = "width:100%;height:10%;"><h3 style = "font-family:OCR A Extended V3;font-size:40px;">Multisnaake</h3></header><br>
+        <div style="display: inline; height: 50%;">
+            <button class = "menuButton" style = "font-size:30; width:20%;">
+                Enter the random game
+            </button><p></p>
+            <button class = "menuButton" style = "font-size:30; width:20%;">
+                Create game
+            </button><p></p>
+            <button class = "menuButton" style = "font-size:30; width:20%;" onclick="findGame();">
+                Find game
+            </button><p></p>
+            <button class = "menuButton" style = "font-size:30; width:20%;">
+                View statistics
+            </button><p></p>
+            <button class = "menuButton" style = "font-size:30; width:20%;">
+                Exit
+            </button>
+        </div>
+        <div style="display: inline;">
+            lsdlksadlkasl;d
+        </div>
+
     </body>
     <script type = "text/javascript">
-     
-        
+        let id;
+        let login;
+        let mode;
+        let stat = {};
+        function getBaseInfo(){
+            let queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            id = urlParams.get('id');
+            login = urlParams.get('login');
+            mode = urlParams.get('mode');
+            $.ajax({
+                    url: 'http://127.0.0.1:8080/',
+                    type: 'POST',
+                    dataType: 'json',
+                    data:JSON.stringify({"cmd":"getAllInfo","player":{"login":login,"mode":1}})
+                })
+                .done(function(data) {
+                    let ans = JSON.parse(data);
+                    if(ans["opStatus"]==false)alert("Something get wrong!");
+                    else{
+                        stat["longest"] = ans["longest"];
+                        stat["win"] = ans["win"];
+                        stat["lose"] = ans["lose"];
+                    }
+                })
+        }
+        function create(){
+            $.ajax({
+                    url: 'http://127.0.0.1:8080/',
+                    type: 'POST',
+                    dataType: 'json',
+                    data:JSON.stringify({"cmd":"create","player":{"login":login,"mode":1}})
+                })
+                .done(function(data) {
+                    redirector(data);
+                })
+        }
+        function find(){
+            $.ajax({
+                    url: 'http://127.0.0.1:8080/',
+                    type: 'POST',
+                    dataType: 'json',
+                    data:JSON.stringify({"cmd":"getAllGames"})
+                })
+                .done(function(data) {
+                    let gameList = JSON.parse(data);
+                })
+        }
     </script>
 </html>
