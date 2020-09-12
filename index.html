@@ -103,7 +103,7 @@
 		    let pass = $("#pass").val();
 		    $("#pass").val("");
 		    let confPass = $("#passConfirm").val();
-		    $("#confPass").val("");
+		    $("#passConfirm").val("");
 		    if(pass==undefined)pass = "";
 		    if(confPass==undefined)confPass = "";
 
@@ -122,7 +122,7 @@
 				}
 		    else
 		    	if(mode==2){
-		    		if( mode !=3 && pass!=confPass || pass.lenght<8 || login.lenght==0 ){alert("Password lenght must be more or equal 8 or you entered two different passwords");}
+		    		if(pass!=confPass || pass.lenght<8){alert("Password lenght must be more or equal 8 or you entered two different passwords");}
 		    		else{
 		    			$.ajax({
 						url: 'http://127.0.0.1:8080/',
@@ -143,14 +143,17 @@
 					data:JSON.stringify({"cmd":"register","player":{"login":login,"pass":"","temp":1}})
 				})
 				.done(function(data) {
+                    console.log(data);
+                    console.log(typeof(data))
 					redirector(data);
 				})
 				
 		    }
 	    }
 	    function redirector(data){
-	    	let ans = JSON.parse(data);
-	    	if(ans["opStatus"])window.location.replace("gamemenu.html?id="+ans["pid"]+"&login="+ans["login"]);
+	    	let ans = data;
+            alert(ans);
+	    	if(ans["opStatus"]==true)window.location.replace("gamemenu.html?id="+ans["pid"]+"&login="+ans["login"]);
 	    	else
 	    		alert("Some get wrong");
 	    }

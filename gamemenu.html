@@ -6,41 +6,56 @@
            
     <style>
         .menuButton{
-            width:15%;
+            width:50%;
             font-family:OCR A Extended V3;
             font-size:30;
+        }
+        .parag{
+            font-family:OCR A Extended V3;
+            font-size:30;
+        }
+        .gameElem{
+            border: 2px solid black;
+            border-radius: 4px;
         }
     </style>
      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <body>
         <header align = center style = "width:100%;height:10%;"><h3 style = "font-family:OCR A Extended V3;font-size:40px;">Multisnaake</h3></header><br>
-        <div style="display: inline; height: 50%;">
-            <button class = "menuButton" style = "font-size:30; width:20%;">
-                Enter the random game
-            </button><p></p>
-            <button class = "menuButton" style = "font-size:30; width:20%;">
-                Create game
-            </button><p></p>
-            <button class = "menuButton" style = "font-size:30; width:20%;" onclick="findGame();">
-                Find game
-            </button><p></p>
-            <button class = "menuButton" style = "font-size:30; width:20%;">
-                View statistics
-            </button><p></p>
-            <button class = "menuButton" style = "font-size:30; width:20%;">
-                Exit
-            </button>
-        </div>
-        <div style="display: inline;">
-            lsdlksadlkasl;d
-        </div>
-
+                     
+             <nav style="display: flex;">
+                
+              <div style="flex-direction: column; height: 50%;width: 50%;">
+                  <p class="parag" id = "name">
+                     Name:
+                  </p>
+                  <button class = "menuButton">
+                      Enter the random game
+                  </button><p></p>
+                  <button class = "menuButton" onclick="showCreateMenu()">
+                      Create game
+                  </button><p></p>
+                  <button class = "menuButton" onclick="findGame();">
+                      Find game
+                  </button><p></p>
+                  <button class = "menuButton"  onclick="getBaseInfo()">
+                      View statistics
+                  </button><p></p>
+                  <button class = "menuButton" onclick="close()">
+                      Exit
+                  </button>
+              </div>
+              <div style="flex-direction: column;" id = "addDiv">
+              </div>
+             </nav>
+             </div><br>
     </body>
     <script type = "text/javascript">
         let id;
         let login;
         let mode;
-        let stat = {};
+        let goToNext = 0;
+
         function getBaseInfo(){
             let queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
@@ -54,26 +69,48 @@
                     data:JSON.stringify({"cmd":"getAllInfo","player":{"login":login,"mode":1}})
                 })
                 .done(function(data) {
-                    let ans = JSON.parse(data);
-                    if(ans["opStatus"]==false)alert("Something get wrong!");
+                    let ans = data;
+                    if(ans["opStatus"]==false)window.location.replace("wrong.html");
                     else{
-                        stat["longest"] = ans["longest"];
-                        stat["win"] = ans["win"];
-                        stat["lose"] = ans["lose"];
+                        $("addDiv").html('<p class="parag" id = "wins">Win :'+ans["win"]+'</p><p class="parag" id = "loses">Lose: '+ans["lose"]+'</p><p class="parag" id = "longest">Longest: '+ans["longest"]+'</p>');
+                        $("#name").text("Login:"+login);
                     }
                 })
         }
+
         function create(){
-            $.ajax({
+            let gamename = $("#gameName").val();
+            $("#gameName").val("");
+            let gamepass = $("#gamePassword").val();
+            $("#gamePassword").val("");
+            if(gameName!=""){
+                  $.ajax({
                     url: 'http://127.0.0.1:8080/',
                     type: 'POST',
                     dataType: 'json',
-                    data:JSON.stringify({"cmd":"create","player":{"login":login,"mode":1}})
+                    data:JSON.stringify({"cmd":"create","game":{"name":gameName,"password":gamepass}})
                 })
                 .done(function(data) {
-                    redirector(data);
+                    let ans = data;
+                    if(ans["opStatus"]=="OK")
+                        alert("game created");
+                    else
+                        alert("Something went wrong");
                 })
+            }
+            else
+                alert("Game name is empty");
+          
         }
+        
+        function parseGame(game){
+            return "<div class = 'gameElem' align = 'justify'> <span> id: "+game[0]+"</span><span>Password: "+((game[1]==false)?"No":"Yes")+"</span><button class = 'menuButton' style = 'width:15%;font-size:20;' onclick = login("+game[0]+")>Enter!</button></div>";
+        }
+
+        function showCreateMenu(){
+            $("#addDiv").html("<center> Enter game name <br> <input type = 'text' id = 'gameName'><br>Enter password. If you want make game accessible to all leave this field empty<br><input type = 'pwd' id = 'gamePassword'><p></p><button class = 'menuButton'>Create</button></center>");
+        }
+
         function find(){
             $.ajax({
                     url: 'http://127.0.0.1:8080/',
@@ -82,8 +119,29 @@
                     data:JSON.stringify({"cmd":"getAllGames"})
                 })
                 .done(function(data) {
-                    let gameList = JSON.parse(data);
+                    let gameList = data;
+                    let buttons = "<p class = 'parag'>There is no free games... Create one</p>";
+                    if(gameList["opStatus"]==true){
+                        buttons = '';
+                        gameList.forEach(game => buttons+=parseGame(game));
+                    }
+                    else
+                    $("#addDiv").html(buttons);
                 })
         }
+        function close(){
+            if(goToNext==0){
+                $.ajax({
+                    url: 'http://127.0.0.1:8080/',
+                    type: 'POST',
+                    dataType: 'json',
+                    data:JSON.stringify({"cmd":"exit","player":{"login":login,"id":id,"mode":mode}})
+                })
+            }
+        }
+        $(window).on("unload", function(e) {
+            close();
+        });
+
     </script>
 </html>

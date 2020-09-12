@@ -41,6 +41,7 @@ def register(player):
         print(newp)
         cursor.execute(''' INSERT INTO users VALUES (?,?,?,?,?,?,?) ''',newp)
         conn.commit()
+        print(json.dumps({"opStatus":True,"id":pid,"login":player['login']}))
         return json.dumps({"opStatus":True,"id":pid,"login":player['login']})
     else:
         return json.dumps({"opStatus":False})
@@ -53,7 +54,8 @@ def checkIfExists(player):
         return json.dumps({"opStatus":True,"id":pid,"login":player['login']})
 
 def exit(player):
-    cursor.execute("delete from users where login = '"+player['login']+"' and pass = '"+player['pass']+"' and id = '"+player['id']+"'")
+    if player["mode"]==3:
+        cursor.execute("delete from users where login = '"+player['login']+"' and mode = '"+player['mode']+"' and id = '"+player['id']+"'")
     return json.dumps({"opStatus": True})
 
 def getStat(player):
@@ -69,11 +71,13 @@ def getStat(player):
     return json.dumps(ans)
    
 def getAllGames():      
-    cursor.execute("select win,lose,longest from users where login = '"+player['login']+"' and id = '"+player['id']+"' and temp = '"+str(0 if player["mode"]!=3 else 1)+"'")
+    cursor.execute("select name,pass from games where plTwoId!='-1'")
     res = cursor.fetchall()
     ans = {}
-    ans["opStatus"] = True
+    ans["opStatus"] = True if res==None else False
     ans["games"] = res
+    for elem in ans["games"]:
+        elem[1] = (elem[1]!="")
     return json.dumps(ans)
 
 def createGame(game):
@@ -88,37 +92,35 @@ def createGame(game):
         gid = cursor.fetchone()[0]+1
         nume = [gid,game['name'],game['pass'],game['pid'],-1,str(""),"",""]
         games[nume] = game.game()
-
+    return ans
 
 
 def router(cmd: dict):
     if cmd['cmd']=="register":
-        return register(cmd["player"])
+        rezult = register(cmd["player"])
     elif cmd['cmd']=="exit":
-        return exit(cmd["player"])
+        rezult = exit(cmd["player"])
     elif cmd['cmd']=="check":
-        return checkIfExists(cmd["player"])
+        rezult = checkIfExists(cmd["player"])
     elif cmd['cmd']=="getAllInfo":
-        return getAllInfo(cmd["player"])
+        rezult = getAllInfo(cmd["player"])
     elif cmd['cmd']=="getAllGames":
-        return getAllInfo()
-
+        rezult = getAllGames()
+    print(type(rezult))
+    return rezult
 
 while True:
     sock.listen(1)
     connection, address = sock.accept()
     buf = connection.recv(1024)
-    try:
-        if len(buf) > 0:
-            print(str(buf).split("\\r\\n"))
-            print(str(buf).split("\\r\\n")[-1][:-1])
-            resp = json.loads(str(buf).split("\\r\\n")[-1][:-1])
-            connection.send(("HTTP/1.1 200 OK\n"
-             + "Access-Control-Allow-Origin: *\n"
-             + "Content-Type: json\n"
-             + "\n"+router(resp)).encode('utf-8'))
-    except:
-        print(buf)
+    if len(buf) > 0:
+        resp = json.loads(str(buf).split("\\r\\n")[-1][:-1])
+        answer = ("HTTP/1.1 200 OK\n"
+         + "Access-Control-Allow-Origin: *\n"
+         + "Content-Type: json\n"
+         +router(resp)).encode('utf-8')
+        print(answer)
+        connection.send(answer)
 
 
 connection.close()
