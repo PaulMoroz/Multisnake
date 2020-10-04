@@ -41,7 +41,7 @@
                   <button class = "menuButton"  onclick="getBaseInfo()">
                       View statistics
                   </button><p></p>
-                  <button class = "menuButton" onclick="close()">
+                  <button class = "menuButton" onclick="window.close()">
                       Exit
                   </button>
               </div>
@@ -61,31 +61,31 @@
             const urlParams = new URLSearchParams(queryString);
             id = urlParams.get('id');
             login = urlParams.get('login');
-            mode = urlParams.get('mode');
+          //  mode = urlParams.get('mode');
             $.ajax({
-                    url: 'http://127.0.0.1:8080/',
+                    url: 'http://127.0.0.1:4567/',
                     type: 'POST',
                     dataType: 'json',
-                    data:JSON.stringify({"cmd":"getAllInfo","player":{"login":login,"mode":1}})
+                    data:JSON.stringify({"cmd":"getAllInfo","player":{"login":login}})
                 })
                 .done(function(data) {
                     let ans = data;
                     if(ans["opStatus"]==false)window.location.replace("wrong.html");
                     else{
-                        $("addDiv").html('<p class="parag" id = "wins">Win :'+ans["win"]+'</p><p class="parag" id = "loses">Lose: '+ans["lose"]+'</p><p class="parag" id = "longest">Longest: '+ans["longest"]+'</p>');
+                        $("#addDiv").html('<p class="parag" id = "wins">Win :'+ans["win"]+'</p><p class="parag" id = "loses">Lose: '+ans["lose"]+'</p><p class="parag" id = "longest">Longest: '+ans["longest"]+'</p>');
                         $("#name").text("Login:"+login);
                     }
                 })
         }
 
         function create(){
-            let gamename = $("#gameName").val();
+            let gameName = $("#gameName").val();
             $("#gameName").val("");
             let gamepass = $("#gamePassword").val();
             $("#gamePassword").val("");
             if(gameName!=""){
                   $.ajax({
-                    url: 'http://127.0.0.1:8080/',
+                    url: 'http://127.0.0.1:4567/',
                     type: 'POST',
                     dataType: 'json',
                     data:JSON.stringify({"cmd":"create","game":{"name":gameName,"password":gamepass}})
@@ -100,20 +100,27 @@
             }
             else
                 alert("Game name is empty");
-          
         }
-        
+
+        function findGame(){
+
+        }
+
+        function joinGame(){
+
+        }
+
         function parseGame(game){
             return "<div class = 'gameElem' align = 'justify'> <span> id: "+game[0]+"</span><span>Password: "+((game[1]==false)?"No":"Yes")+"</span><button class = 'menuButton' style = 'width:15%;font-size:20;' onclick = login("+game[0]+")>Enter!</button></div>";
         }
 
         function showCreateMenu(){
-            $("#addDiv").html("<center> Enter game name <br> <input type = 'text' id = 'gameName'><br>Enter password. If you want make game accessible to all leave this field empty<br><input type = 'pwd' id = 'gamePassword'><p></p><button class = 'menuButton'>Create</button></center>");
+            $("#addDiv").html("<center> Enter game name <br> <input type = 'text' id = 'gameName'><br>Enter password. If you want make game accessible to all leave this field empty<br><input type = 'pwd' id = 'gamePassword'><p></p><button class = 'menuButton' onclick='create()'>Create</button></center>");
         }
 
         function find(){
             $.ajax({
-                    url: 'http://127.0.0.1:8080/',
+                    url: 'http://127.0.0.1:4567/',
                     type: 'POST',
                     dataType: 'json',
                     data:JSON.stringify({"cmd":"getAllGames"})
@@ -129,19 +136,24 @@
                     $("#addDiv").html(buttons);
                 })
         }
+
+        
+
         function close(){
             if(goToNext==0){
                 $.ajax({
-                    url: 'http://127.0.0.1:8080/',
+                    url: 'http://127.0.0.1:4567/',
                     type: 'POST',
                     dataType: 'json',
                     data:JSON.stringify({"cmd":"exit","player":{"login":login,"id":id,"mode":mode}})
                 })
             }
         }
+
         $(window).on("unload", function(e) {
             close();
         });
+
 
     </script>
 </html>
