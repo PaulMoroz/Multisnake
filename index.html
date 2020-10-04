@@ -152,7 +152,9 @@
 	    }
 	    function redirector(data){
 	    	let ans = data;
-	    	if(ans["opStatus"]==true)window.location.replace("gamemenu.html?id="+ans["pid"]+"&login="+ans["login"]);
+            localStorage.setItem('pid',ans['pid']);
+            localStorage.setItem('login',ans['login']);
+            if(ans["opStatus"]==true)window.location.replace("gamemenu.html");
 	    	else
 	    		alert("Some get wrong");
 	    }

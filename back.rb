@@ -13,7 +13,7 @@ $db = SQLite3::Database.open 'users.db'
 $db.execute "CREATE TABLE IF NOT EXISTS users (id int,login varchar(256), pass varchar(256), win int, lose int, longest int,temp int)"
 $db.execute "CREATE TABLE IF NOT EXISTS games (id int,name varchar(256), pass varchar(256),plOneId int,plTwoId int)"
 
-games = {}
+$games = {}
 
 
 def register(player)
@@ -86,30 +86,36 @@ end
 def createGame(game)
   ans = {"opStatus"=>TRUE}
   if $games[game['name']]==nil
-    id = $games.lenght()+1
+    id = $games.length()+1
     ans['gameId'] = id
-    games[id] = {'game'=>Game.new}
-    games[id]['fid'] = game['cid']
-  else
-    ans['opStatus'] = FALSE
+    $games[id] = {'game'=>Game.new}
+    $games[id]['fid'] = game['cid']
+    $db.execute 'insert into games values (?,?,?,0,-1)',id,game['name'],game['password']
   end
   ans.to_json
 end
 
-def logGame(player,game)
-  ans = {"opStatus"=>TRUE}
-  games[game['id']]['sid'] = player['id']
+"""def logGame(player,game)
+  ans = {'opStatus'=>TRUE}
+  $games[game['id']]['sid'] = player['id']
   ans
-end
+    ans['gameId'] = id
+    $games[id] = {'game'=>Game.new}
+    $games[id]['fid'] = game['cid']
+    $db.execute 'insert into games values (?,?,?,0,-1)',id,game['name'],game['password']
+  else
+    ans['opStatus'] = FALSE
+end*/
+"""
 
 def getallgames()
-  res = $db.execute "select * from games where 'plTwoId'=-1"
+  res = $db.execute "select * from games where plTwoId=-1"
   ans = {"opStatus"=>TRUE}
   ans['games'] = res
-   ans.to_json
+  ans.to_json
 end
 
-def getstatus(player,game)
+def getStatus(player,game)
 
 end
 

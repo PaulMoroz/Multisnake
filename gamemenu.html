@@ -35,7 +35,7 @@
                   <button class = "menuButton" onclick="showCreateMenu()">
                       Create game
                   </button><p></p>
-                  <button class = "menuButton" onclick="findGame();">
+                  <button class = "menuButton" onclick="find();">
                       Find game
                   </button><p></p>
                   <button class = "menuButton"  onclick="getBaseInfo()">
@@ -57,10 +57,8 @@
         let goToNext = 0;
 
         function getBaseInfo(){
-            let queryString = window.location.search;
-            const urlParams = new URLSearchParams(queryString);
-            id = urlParams.get('id');
-            login = urlParams.get('login');
+            id = localStorage.getItem('pid');
+            login = localStorage.getItem('login');
           //  mode = urlParams.get('mode');
             $.ajax({
                     url: 'http://127.0.0.1:4567/',
@@ -92,7 +90,8 @@
                 })
                 .done(function(data) {
                     let ans = data;
-                    if(ans["opStatus"]=="OK")
+                    console.log(data);
+                    if(ans["opStatus"]==true)
                         alert("game created");
                     else
                         alert("Something went wrong");
@@ -100,10 +99,6 @@
             }
             else
                 alert("Game name is empty");
-        }
-
-        function findGame(){
-
         }
 
         function joinGame(){
@@ -128,11 +123,13 @@
                 .done(function(data) {
                     let gameList = data;
                     let buttons = "<p class = 'parag'>There is no free games... Create one</p>";
-                    if(gameList["opStatus"]==true){
-                        buttons = '';
-                        gameList.forEach(game => buttons+=parseGame(game));
+                    if(gameList["opStatus"]==true && gameList['games']!=[]){
+                        console.log(gameList);
+                        buttons = "";
+                        for(let i = 0;i<gameList['games'].length;i++){
+                            buttons+="<button onclick='joinGame("+gameList['games'][i][0]+")'> Join to "+gameList['games'][i][1]+" room </button>";
+                        }
                     }
-                    else
                     $("#addDiv").html(buttons);
                 })
         }
@@ -153,7 +150,7 @@
         $(window).on("unload", function(e) {
             close();
         });
-
+        getBaseInfo();
 
     </script>
 </html>

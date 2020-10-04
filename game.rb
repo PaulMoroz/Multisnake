@@ -4,23 +4,22 @@ class Game
   def initialize()
     @players = {}
     @winner = -1
-    @players[1]['snake'] = [[9,2],[8,2],[7,2]]
-    @players[1] = 0
+    @players[1] = {'snake'=>[[9,2],[8,2],[7,2]]}
+    @players[1]['cx'] = 0
     @players[1]['cy'] = -1
     @players[1]['side'] = 'U'
-    @players[1]['snake'] = [[2,9],[2,8],[2,7]]
-    @players[1] = -1
-    @players[1]['cy'] = L
+    @players[2] = {'snake'=>[[2,9],[2,8],[2,7]]}
+    @players[2]['cx'] = -1
+    @players[2]['cy'] = 0
     @players[2]['side'] = 'L'
     @timer = 0
     @run = FALSE
 
     genFood
-    end
+  end
   def genFood()
-    @run = FALSE
     @food = [rand(10)+1,rand(10)+1]
-    while  players[1]['snake'].include(food) or players[1]['snake'].include(food)
+    while  players[1]['snake'].include?(food) || players[2]['snake'].include?(food)
       @food = [rand(10)+1,rand(10)+1]
     end
   end
