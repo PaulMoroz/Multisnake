@@ -35,13 +35,13 @@
                   <button class = "menuButton" onclick="showCreateMenu()">
                       Create game
                   </button><p></p>
-                  <button class = "menuButton" onclick="findGame();">
+                  <button class = "menuButton" onclick="find();">
                       Find game
                   </button><p></p>
                   <button class = "menuButton"  onclick="getBaseInfo()">
                       View statistics
                   </button><p></p>
-                  <button class = "menuButton" onclick="close()">
+                  <button class = "menuButton" onclick="window.close()">
                       Exit
                   </button>
               </div>
@@ -57,42 +57,41 @@
         let goToNext = 0;
 
         function getBaseInfo(){
-            let queryString = window.location.search;
-            const urlParams = new URLSearchParams(queryString);
-            id = urlParams.get('id');
-            login = urlParams.get('login');
-            mode = urlParams.get('mode');
+            id = localStorage.getItem('pid');
+            login = localStorage.getItem('login');
+          //  mode = urlParams.get('mode');
             $.ajax({
-                    url: 'http://127.0.0.1:8080/',
+                    url: 'http://127.0.0.1:4567/',
                     type: 'POST',
                     dataType: 'json',
-                    data:JSON.stringify({"cmd":"getAllInfo","player":{"login":login,"mode":1}})
+                    data:JSON.stringify({"cmd":"getAllInfo","player":{"login":login}})
                 })
                 .done(function(data) {
                     let ans = data;
                     if(ans["opStatus"]==false)window.location.replace("wrong.html");
                     else{
-                        $("addDiv").html('<p class="parag" id = "wins">Win :'+ans["win"]+'</p><p class="parag" id = "loses">Lose: '+ans["lose"]+'</p><p class="parag" id = "longest">Longest: '+ans["longest"]+'</p>');
+                        $("#addDiv").html('<p class="parag" id = "wins">Win :'+ans["win"]+'</p><p class="parag" id = "loses">Lose: '+ans["lose"]+'</p><p class="parag" id = "longest">Longest: '+ans["longest"]+'</p>');
                         $("#name").text("Login:"+login);
                     }
                 })
         }
 
         function create(){
-            let gamename = $("#gameName").val();
+            let gameName = $("#gameName").val();
             $("#gameName").val("");
             let gamepass = $("#gamePassword").val();
             $("#gamePassword").val("");
             if(gameName!=""){
                   $.ajax({
-                    url: 'http://127.0.0.1:8080/',
+                    url: 'http://127.0.0.1:4567/',
                     type: 'POST',
                     dataType: 'json',
                     data:JSON.stringify({"cmd":"create","game":{"name":gameName,"password":gamepass}})
                 })
                 .done(function(data) {
                     let ans = data;
-                    if(ans["opStatus"]=="OK")
+                    console.log(data);
+                    if(ans["opStatus"]==true)
                         alert("game created");
                     else
                         alert("Something went wrong");
@@ -100,20 +99,23 @@
             }
             else
                 alert("Game name is empty");
-          
         }
-        
+
+        function joinGame(){
+
+        }
+
         function parseGame(game){
             return "<div class = 'gameElem' align = 'justify'> <span> id: "+game[0]+"</span><span>Password: "+((game[1]==false)?"No":"Yes")+"</span><button class = 'menuButton' style = 'width:15%;font-size:20;' onclick = login("+game[0]+")>Enter!</button></div>";
         }
 
         function showCreateMenu(){
-            $("#addDiv").html("<center> Enter game name <br> <input type = 'text' id = 'gameName'><br>Enter password. If you want make game accessible to all leave this field empty<br><input type = 'pwd' id = 'gamePassword'><p></p><button class = 'menuButton'>Create</button></center>");
+            $("#addDiv").html("<center> Enter game name <br> <input type = 'text' id = 'gameName'><br>Enter password. If you want make game accessible to all leave this field empty<br><input type = 'pwd' id = 'gamePassword'><p></p><button class = 'menuButton' onclick='create()'>Create</button></center>");
         }
 
         function find(){
             $.ajax({
-                    url: 'http://127.0.0.1:8080/',
+                    url: 'http://127.0.0.1:4567/',
                     type: 'POST',
                     dataType: 'json',
                     data:JSON.stringify({"cmd":"getAllGames"})
@@ -121,27 +123,34 @@
                 .done(function(data) {
                     let gameList = data;
                     let buttons = "<p class = 'parag'>There is no free games... Create one</p>";
-                    if(gameList["opStatus"]==true){
-                        buttons = '';
-                        gameList.forEach(game => buttons+=parseGame(game));
+                    if(gameList["opStatus"]==true && gameList['games']!=[]){
+                        console.log(gameList);
+                        buttons = "";
+                        for(let i = 0;i<gameList['games'].length;i++){
+                            buttons+="<button onclick='joinGame("+gameList['games'][i][0]+")'> Join to "+gameList['games'][i][1]+" room </button>";
+                        }
                     }
-                    else
                     $("#addDiv").html(buttons);
                 })
         }
+
+        
+
         function close(){
             if(goToNext==0){
                 $.ajax({
-                    url: 'http://127.0.0.1:8080/',
+                    url: 'http://127.0.0.1:4567/',
                     type: 'POST',
                     dataType: 'json',
                     data:JSON.stringify({"cmd":"exit","player":{"login":login,"id":id,"mode":mode}})
                 })
             }
         }
+
         $(window).on("unload", function(e) {
             close();
         });
+        getBaseInfo();
 
     </script>
 </html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <input type="text" id="name">
+    <button onclick="query()">Make Query!</button>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    function query(){
+        $.ajax({
+            url: 'http://127.0.0.1:4567/',
+            type: 'POST',
+            dataType: 'application/json',
+            data: JSON.stringify({name:$("#name").val()})
+        })
+            .done(function(data) {
+                console.log(data);
+            })
+    }
+</script>
+</html>
