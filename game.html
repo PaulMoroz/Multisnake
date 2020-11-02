@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<center>
+    <div style="background-color:yellow;display: inline-grid; height: 800px;width: calc((100% - 820px)/2);">
+
+    </div>
+<canvas id = 'canv' style="width:  800px;height: 800px;"></canvas>
+    <div style="background-color:yellow;display:inline-grid;height: 800px;width: calc((100% - 820px)/2);">
+
+    </div>
+    <button style="width: 45%;background-color: red;" onclick="close()">Exit from game</button>
+    <button style="width: 45%;background-color: red;">Exit to menu</button>
+</center>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    let direction = "R";
+    let gameId = localStorage.getItem("gid");
+    let pid = localStorage.getItem('pid');
+    let mode = localStorage.getItem('mode');
+    var directions = {
+        37: "left",
+        38: "up",
+        39: "right",
+        40: "down",
+        87: "up",
+        65:"left",
+        83:"down",
+        68:"right"
+    };
+    $("body").keydown(function (event) {
+    direction = directions[event.keyCode];
+    });
+    setTimeout(swapEvents,500);
+    function swapEvents(){
+        $.ajax({
+            url: 'http://127.0.0.1:4567/',
+            type: 'POST',
+            dataType: 'json',
+            data:JSON.stringify({"cmd":"getGameStatus","game":{"gid":gameId,"side":direction,"pid":pid}})
+        })
+            .done(function(data) {
+                let ans = data;
+                if(ans["opStatus"]==true)
+                    draw(ans['snake'],ans['enemy'],ans['food']);
+                else
+                    alert("Something went wrong");
+            });
+    }
+    function draw(snake1,snake2,food){
+        let canvas = document.getElementById("canv");
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath();
+        ctx.lineWidth = "3";
+        ctx.strokeStyle = "black";
+        ctx.rect(0, 0, canvas.width, canvas.height);
+        ctx.stroke();
+        for(let i = 0;i<snake1.length;i++){
+            ctx.beginPath();
+            ctx.fillStyle = "rgb(0,0,200)";
+            if(i==snake1.length-1){
+                ctx.fillStyle = "rgb(0,200,200)";
+            }
+            ctx.rect(snake1[i].x*40, snake1[i].y*40, snake1[i].x*40+40, snake1[i].y*40+40);
+            ctx.stroke();
+        }
+        for(let i = 0;i<snake2.length;i++){
+            ctx.beginPath();
+            ctx.fillStyle = "rgb(200,0,0)";
+            if(i==snake2.length-1){
+                ctx.fillStyle = "rgb(200,200,0)";
+            }
+            ctx.rect(snake2[i].x*40, snake2[i].y*40, snake2[i].x*40+40, snake2[i].y*40+40);
+            ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.fillStyle = "rgb(0,200,0)";
+        ctx.rect(food['x']*40, food['y']*40, food['x']*40+40, food['y']*40+40);
+        ctx.stroke();
+        for(let i=0;i<=20;i++){
+                ctx.beginPath();
+                ctx.moveTo(0,i*20);
+                ctx.lineTo(800,i*20);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(i*20,0);
+                ctx.lineTo(i*20,800);
+                ctx.stroke();
+        }
+    }
+
+    function close(){
+        if(goToNext==0){
+            localStorage.clear();
+            $.ajax({
+                url: 'http://127.0.0.1:4567/',
+                type: 'POST',
+                dataType: 'json',
+                data:JSON.stringify({"cmd":"exit","player":{"login":localStorage.getItem('login'),"id":id,"mode":mode}})
+            })
+        }
+    }
+</script>
+
+</body>
+</html>
